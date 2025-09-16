@@ -1,14 +1,24 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Movie, Review
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 # Create your views here.
 def index(request):
     search_term = request.GET.get('search')
+    # if search_term:
+    #     movies = Movie.objects.filter(name__icontains=search_term)
+    # else:
+    #     movies = Movie.objects.all()
+
+    # Only include movies that are either unlimited (None) or have stock left (> 0)
+    base_qs = Movie.objects.filter(Q(amount_left__isnull=True) | Q(amount_left__gt=0))
+
     if search_term:
-        movies = Movie.objects.filter(name__icontains=search_term)
+        movies = base_qs.filter(name__icontains=search_term)
     else:
-        movies = Movie.objects.all()
+        movies = base_qs
+
     template_data = {}
     template_data['title'] = 'Movies'
     template_data['movies'] = movies

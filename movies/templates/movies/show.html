@@ -8,7 +8,8 @@
         <h2>{{ template_data.movie.name }}</h2>
         <hr />
         <p><b>Description:</b> {{ template_data.movie.description }}</p>
-        <p><b>Price:</b> ${{ template_data.movie.price }}</p>
+        
+        <!-- <p><b>Price:</b> ${{ template_data.movie.price }}</p>
         <p class="card-text">
           <form method="post"
             action="{% url 'cart.add' id=template_data.movie.id %}">
@@ -29,7 +30,52 @@
               </div>
             </div>
           </form>
+        </p> -->
+
+        <!-- START: Price + Inventory + Purchase form -->
+        <p><b>Price:</b> ${{ template_data.movie.price }}</p>
+
+        <p>
+          <b>Amount left:</b>
+          {% if template_data.movie.amount_left == None %}
+            Unlimited
+          {% else %}
+            {{ template_data.movie.amount_left }}
+          {% endif %}
         </p>
+
+        {% if template_data.movie.amount_left == None or template_data.movie.amount_left > 0 %}
+          <p class="card-text">
+            <form method="post" action="{% url 'cart.add' id=template_data.movie.id %}">
+              {% csrf_token %}
+              <div class="row">
+                <div class="col-auto">
+                  <div class="input-group col-auto">
+                    <div class="input-group-text">Quantity</div>
+                    <input
+                      type="number"
+                      min="1"
+                      {% if template_data.movie.amount_left %}
+                        max="{{ template_data.movie.amount_left }}"
+                      {% else %}
+                        max="10"
+                      {% endif %}
+                      class="form-control quantity-input"
+                      name="quantity"
+                      value="1">
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <button class="btn bg-dark text-white" type="submit">Add to cart</button>
+                </div>
+              </div>
+            </form>
+          </p>
+        {% else %}
+          <span class="badge bg-secondary">Sold out</span>
+        {% endif %}
+        <!-- END: Price + Inventory + Purchase form -->
+
         <h2>Reviews</h2>
         <hr />
         <ul class="list-group">
